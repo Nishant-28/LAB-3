@@ -1,136 +1,101 @@
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <algorithm>
-#include <random>
+#include <vector>
 
 using namespace std;
 
-void insertionSort(int arr[], int n) {
-  int i, key, j;
-  for (i = 1; i < n; i++) {
-    key = arr[i];
-    j = i - 1;
+void insertionSort(vector<int>& arr, int& comparisons) {
+    int n = arr.size();
+    for (int i = 1; i < n; ++i) {
+        int key = arr[i];
+        int j = i - 1;
 
-    while (j >= 0 && arr[j] > key) {
-      arr[j + 1] = arr[j];
-      j = j - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+            comparisons++;
+        }
+
+        arr[j + 1] = key;
     }
-    arr[j + 1] = key;
-  }
+}
+
+void printArray(const vector<int>& arr) {
+    for (int num : arr) {
+        cout << num << " ";
+    }
+    cout << endl;
 }
 
 int main() {
+    int choice;
+    vector<int> data;
+    int comparisons = 0;
 
-  int option;
-  int n = 500; 
-  int arr[n];
+    while (true) {
+        cout << "MAIN MENU (INSERTION SORT)" << endl;
+        cout << "1. Ascending Data" << endl;
+        cout << "2. Descending Data" << endl;
+        cout << "3. Random Data" << endl;
+        cout << "4. Exit" << endl;
+        cout << "Enter option: ";
+        cin >> choice;
 
-  while(true) {
-
-    cout << "MAIN MENU (INSERTION SORT)" << endl;
-    cout << "1. Ascending Data" << endl;
-    cout << "2. Descending Data" << endl; 
-    cout << "3. Random Data" << endl;
-    cout << "4. Exit" << endl;
-
-    cout << "Enter option: ";
-    cin >> option;
-
-    switch(option) {
-      case 1: {
-        // Read ascending data
-        ifstream in("inAsce.dat");
-        for(int i=0; i<n; i++) {
-          in >> arr[i];
-        }
-        
-        // Sort
-        int comparisons = 0;
-        insertionSort(arr, n);
-        
-        // Count comparisons
-        for(int i=1; i<n; i++) {
-          comparisons += i;
+        if (choice == 4) {
+            break;
         }
 
-        // Output sorted data
-        ofstream out("outInsAsce.dat");
-        for(int i=0; i<n; i++) {
-          out << arr[i] << " ";  
+        ifstream inputFile;
+        string inputFileName;
+        switch (choice) {
+            case 1:
+                inputFileName = "inAsce.dat";
+                break;
+            case 2:
+                inputFileName = "inDesc.dat";
+                break;
+            case 3:
+                inputFileName = "inRand.dat";
+                break;
+            default:
+                cout << "Invalid choice." << endl;
+                continue;
         }
-        out.close();
+
+        inputFile.open(inputFileName);
+        if (!inputFile) {
+            cout << "Error opening file: " << inputFileName << endl;
+            continue;
+        }
+
+        int num;
+        data.clear();
+        while (inputFile >> num) {
+            data.push_back(num);
+        }
+        inputFile.close();
+
+        cout << "Before Sorting: ";
+        printArray(data);
+
+        comparisons = 0;
+        insertionSort(data, comparisons);
+
+        cout << "After Sorting: ";
+        printArray(data);
 
         cout << "Number of Comparisons: " << comparisons << endl;
-        cout << "Scenario: Best case" << endl;
-        break;
-      }
-      
-      case 2: {
-        // Read descending data
-        ifstream in("inDesc.dat");
-        for(int i=n-1; i>=0; i--) {
-          in >> arr[i]; 
-        }
-
-        // Sort        
-        int comparisons = 0;
-        insertionSort(arr, n);
         
-        // Count comparisons
-        for(int i=1; i<n; i++) {
-          comparisons += i;
+        // Determine and display the scenario
+        if (comparisons == 0) {
+            cout << "Scenario: Best-case" << endl;
+        } else if (comparisons == data.size() * (data.size() - 1) / 2) {
+            cout << "Scenario: Worst-case" << endl;
+        } else {
+            cout << "Scenario: Intermediate-case" << endl;
         }
-
-        // Output sorted data  
-        ofstream out("outInsDesc.dat");
-        for(int i=0; i<n; i++) {
-          out << arr[i] << " ";
-        }
-        out.close();
-        
-        cout << "Number of Comparisons: " << comparisons << endl;
-        cout << "Scenario: Worst case" << endl;        
-        break;
-      }
-      
-      case 3: {
-        // Generate random data
-        random_device rd;
-        mt19937 gen(rd());
-        uniform_int_distribution<> dis(1, 99);
-        for(int i=0; i<n; i++) {
-          arr[i] = dis(gen);
-        }
-
-        // Sort
-        int comparisons = 0;
-        insertionSort(arr, n);
-        
-        // Count comparisons        
-        for(int i=1; i<n; i++) {
-          comparisons += i;
-        }
-
-        // Output sorted data
-        ofstream out("outInsRand.dat");
-        for(int i=0; i<n; i++) {
-          out << arr[i] << " ";
-        }
-        out.close();
-
-        cout << "Number of Comparisons: " << comparisons << endl;
-        cout << "Scenario: Average case" << endl;        
-        break; 
-      }
-      
-      case 4:
-        exit(0);
-        
-      default:
-        cout << "Invalid option" << endl;
     }
-  }
 
-  return 0;
+    return 0;
 }
+
